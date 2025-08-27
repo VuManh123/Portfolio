@@ -1,8 +1,9 @@
 import React, { useRef, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import { Sphere, Box, Float, Html, useProgress } from "@react-three/drei";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
+import SafeCanvas from "./SafeCanvas";
 
 // 3D Loading Animation Component
 const LoadingGeometry = () => {
@@ -41,25 +42,25 @@ const LoadingGeometry = () => {
                 </Sphere>
             </Float>
             
-            <Float speed={1.5} rotationIntensity={2} floatIntensity={1}>
-                <Box ref={boxRef} args={[1.5, 1.5, 1.5]} position={[3, 0, 0]}>
+            <Float speed={1.5} rotationIntensity={1} floatIntensity={1}>
+                <Box ref={boxRef} args={[1.2, 1.2, 1.2]} position={[2.5, 0, 0]}>
                     <meshStandardMaterial 
                         color="#00d4ff" 
                         transparent 
-                        opacity={0.6}
+                        opacity={0.5}
                         wireframe
                     />
                 </Box>
             </Float>
             
-            <Float speed={1.8} rotationIntensity={0.5} floatIntensity={3}>
-                <Sphere args={[0.7, 16, 16]} position={[-2.5, 1, 0]}>
+            <Float speed={1.8} rotationIntensity={0.3} floatIntensity={2}>
+                <Sphere args={[0.6, 12, 12]} position={[-2, 0.5, 0]}>
                     <meshStandardMaterial 
                         color="#a855f7" 
                         transparent 
-                        opacity={0.7}
+                        opacity={0.6}
                         emissive="#a855f7"
-                        emissiveIntensity={0.2}
+                        emissiveIntensity={0.1}
                     />
                 </Sphere>
             </Float>
@@ -218,12 +219,24 @@ const Loading = ({ isLoading, onLoadingComplete }) => {
                 {/* 3D Canvas */}
                 <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-full h-full max-w-2xl max-h-2xl">
-                        <Canvas camera={{ position: [0, 0, 8], fov: 45 }}>
+                        <SafeCanvas 
+                            camera={{ position: [0, 0, 8], fov: 45 }}
+                            fallback={
+                                <div className="flex items-center justify-center h-full">
+                                    <div className="text-center">
+                                        <div className="text-8xl mb-4 animate-spin">⚛️</div>
+                                        <p className="text-primary-400 text-xl font-medium">
+                                            Loading...
+                                        </p>
+                                    </div>
+                                </div>
+                            }
+                        >
                             <ambientLight intensity={0.3} />
                             <directionalLight position={[5, 5, 5]} intensity={1} />
                             <pointLight position={[-5, -5, -5]} intensity={0.5} color="#00d4ff" />
                             <LoadingGeometry />
-                        </Canvas>
+                        </SafeCanvas>
                     </div>
                 </div>
 

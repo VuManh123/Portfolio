@@ -1,8 +1,9 @@
 import React, { useRef, useEffect } from "react";
-import { Canvas, useFrame } from "@react-three/fiber";
+import { useFrame } from "@react-three/fiber";
 import { OrbitControls, Sphere, MeshDistortMaterial, Float, Stars } from "@react-three/drei";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
+import SafeCanvas from "./SafeCanvas";
 
 const AnimatedSphere = () => {
   const meshRef = useRef();
@@ -16,14 +17,14 @@ const AnimatedSphere = () => {
 
   return (
     <Float speed={1.5} rotationIntensity={1} floatIntensity={2}>
-      <Sphere ref={meshRef} args={[1, 64, 64]} scale={1.2}>
+      <Sphere ref={meshRef} args={[1, 32, 32]} scale={1.2}>
         <MeshDistortMaterial 
           color="#3b82f6" 
           attach="material" 
-          distort={0.6} 
-          speed={3}
-          roughness={0.2}
-          metalness={0.8}
+          distort={0.3} 
+          speed={2}
+          roughness={0.3}
+          metalness={0.6}
         />
       </Sphere>
     </Float>
@@ -151,8 +152,20 @@ const Hero = () => {
                 transition={{ delay: 0.8, duration: 1 }}
                 className="relative flex-1 h-[400px] lg:h-[600px] w-full max-w-2xl"
             >
-                <Canvas camera={{ position: [0, 0, 5], fov: 45 }}>
-                    <Stars radius={50} depth={50} count={1000} factor={4} saturation={0.5} fade />
+                <SafeCanvas 
+                    camera={{ position: [0, 0, 5], fov: 45 }}
+                    fallback={
+                        <div className="flex items-center justify-center h-full bg-dark-800/50 rounded-lg">
+                            <div className="text-center p-8">
+                                <div className="text-6xl mb-4 animate-pulse">🌟</div>
+                                <p className="text-primary-400 text-lg font-medium">
+                                    Creative Developer
+                                </p>
+                            </div>
+                        </div>
+                    }
+                >
+                    <Stars radius={50} depth={50} count={200} factor={4} saturation={0.5} fade />
                     <ambientLight intensity={0.3} />
                     <directionalLight position={[5, 5, 5]} intensity={1} />
                     <pointLight position={[-5, -5, -5]} intensity={0.5} color="#00d4ff" />
@@ -162,8 +175,10 @@ const Hero = () => {
                         enablePan={false}
                         autoRotate
                         autoRotateSpeed={0.5}
+                        enableDamping
+                        dampingFactor={0.05}
                     />
-                </Canvas>
+                </SafeCanvas>
 
                 {/* Decorative Elements */}
                 <div className="absolute top-10 right-10 w-4 h-4 bg-accent-cyan rounded-full animate-bounce-slow"></div>
