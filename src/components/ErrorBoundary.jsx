@@ -11,7 +11,7 @@ class ErrorBoundary extends React.Component {
   }
 
   componentDidCatch(error, errorInfo) {
-    console.error('Three.js Error:', error, errorInfo);
+    console.error('Application Error:', error, errorInfo);
   }
 
   render() {

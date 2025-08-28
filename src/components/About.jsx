@@ -9,7 +9,7 @@ const skills = [
     { name: "React", level: 95, icon: "⚛️", color: "#61dafb" },
     { name: "TypeScript", level: 90, icon: "📘", color: "#3178c6" },
     { name: "Tailwind CSS", level: 92, icon: "🎨", color: "#06b6d4" },
-    { name: "Three.js", level: 85, icon: "🎯", color: "#000000" },
+    { name: "CSS3", level: 90, icon: "🎨", color: "#1572B6" },
     { name: "Framer Motion", level: 88, icon: "🎭", color: "#0055ff" },
     { name: "GSAP", level: 80, icon: "⚡", color: "#88ce02" },
     { name: "Next.js", level: 87, icon: "▲", color: "#000000" },
@@ -143,7 +143,7 @@ const About = () => {
                             </h3>
                             <p className="text-lg text-dark-300 leading-relaxed">
                                 I'm passionate about creating stunning, interactive web experiences that combine beautiful design with cutting-edge technology. 
-                                With expertise in React, Three.js, and modern animation libraries, I bring ideas to life through code.
+                                With expertise in React, CSS animations, and modern animation libraries, I bring ideas to life through code.
                             </p>
                             <p className="text-lg text-dark-300 leading-relaxed">
                                 My journey in web development started with a curiosity for how things work behind the scenes. 
