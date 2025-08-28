@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { Sphere, Box, Float, Html, useProgress } from "@react-three/drei";
 import { motion, AnimatePresence } from "framer-motion";
@@ -178,6 +178,26 @@ const LoadingDots = () => {
 const Loading = ({ isLoading, onLoadingComplete }) => {
     const { progress } = useProgress();
     const containerRef = useRef(null);
+    const [useWebGL, setUseWebGL] = useState(true);
+
+    useEffect(() => {
+        // Check for Intel UHD Graphics 620 and disable WebGL
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        
+        if (gl) {
+            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            if (debugInfo) {
+                const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                if (renderer.includes('Intel') && renderer.includes('UHD Graphics 620')) {
+                    console.log('Intel UHD Graphics 620 detected - using CSS loading');
+                    setUseWebGL(false);
+                }
+            }
+        } else {
+            setUseWebGL(false);
+        }
+    }, []);
 
     useEffect(() => {
         if (progress === 100) {
@@ -216,27 +236,51 @@ const Loading = ({ isLoading, onLoadingComplete }) => {
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent-cyan/5 rounded-full blur-3xl"></div>
                 </div>
 
-                {/* 3D Canvas */}
+                {/* 3D Canvas or CSS Fallback */}
                 <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-full h-full max-w-2xl max-h-2xl">
-                        <SafeCanvas 
-                            camera={{ position: [0, 0, 8], fov: 45 }}
-                            fallback={
-                                <div className="flex items-center justify-center h-full">
-                                    <div className="text-center">
-                                        <div className="text-8xl mb-4 animate-spin">⚛️</div>
-                                        <p className="text-primary-400 text-xl font-medium">
-                                            Loading...
-                                        </p>
+                        {useWebGL ? (
+                            <SafeCanvas 
+                                camera={{ position: [0, 0, 8], fov: 45 }}
+                                fallback={
+                                    <div className="flex items-center justify-center h-full">
+                                        <div className="text-center">
+                                            <div className="text-8xl mb-4 animate-spin">⚛️</div>
+                                            <p className="text-primary-400 text-xl font-medium">
+                                                Loading...
+                                            </p>
+                                        </div>
                                     </div>
+                                }
+                            >
+                                <ambientLight intensity={0.3} />
+                                <directionalLight position={[5, 5, 5]} intensity={1} />
+                                <pointLight position={[-5, -5, -5]} intensity={0.5} color="#00d4ff" />
+                                <LoadingGeometry />
+                            </SafeCanvas>
+                        ) : (
+                            <div className="flex items-center justify-center h-full">
+                                <div className="text-center">
+                                    <motion.div
+                                        className="text-8xl mb-4"
+                                        animate={{
+                                            rotate: [0, 360],
+                                            scale: [1, 1.2, 1],
+                                        }}
+                                        transition={{
+                                            duration: 3,
+                                            repeat: Infinity,
+                                            ease: "linear"
+                                        }}
+                                    >
+                                        ⚛️
+                                    </motion.div>
+                                    <p className="text-primary-400 text-xl font-medium">
+                                        Loading...
+                                    </p>
                                 </div>
-                            }
-                        >
-                            <ambientLight intensity={0.3} />
-                            <directionalLight position={[5, 5, 5]} intensity={1} />
-                            <pointLight position={[-5, -5, -5]} intensity={0.5} color="#00d4ff" />
-                            <LoadingGeometry />
-                        </SafeCanvas>
+                            </div>
+                        )}
                     </div>
                 </div>
 

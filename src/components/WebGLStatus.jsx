@@ -7,6 +7,22 @@ const WebGLStatus = () => {
   const [showStatus, setShowStatus] = useState(false);
 
   useEffect(() => {
+    // Check for Intel UHD Graphics 620 specifically
+    const canvas = document.createElement('canvas');
+    const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+    
+    if (gl) {
+      const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+      if (debugInfo) {
+        const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+        if (renderer.includes('Intel') && renderer.includes('UHD Graphics 620')) {
+          setShowStatus(true);
+          const timer = setTimeout(() => setShowStatus(false), 8000);
+          return () => clearTimeout(timer);
+        }
+      }
+    }
+
     // Show status if there are issues
     if (!canRender || isContextLost) {
       setShowStatus(true);
@@ -31,12 +47,38 @@ const WebGLStatus = () => {
           }`} />
           <div>
             <p className="text-white font-medium text-sm">
-              {!isSupported && "WebGL not supported"}
-              {isContextLost && "WebGL context lost"}
-              {canRender && "WebGL running normally"}
+              {(() => {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                  const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                  if (debugInfo) {
+                    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                    if (renderer.includes('Intel') && renderer.includes('UHD Graphics 620')) {
+                      return "Intel UHD Graphics 620 detected";
+                    }
+                  }
+                }
+                if (!isSupported) return "WebGL not supported";
+                if (isContextLost) return "WebGL context lost";
+                return "WebGL running normally";
+              })()}
             </p>
             <p className="text-dark-300 text-xs mt-1">
-              {!canRender && "Using fallback 2D animations"}
+              {!canRender || (() => {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                  const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                  if (debugInfo) {
+                    const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                    if (renderer.includes('Intel') && renderer.includes('UHD Graphics 620')) {
+                      return true;
+                    }
+                  }
+                }
+                return false;
+              })() ? "Using optimized 2D animations for better compatibility" : "3D graphics running smoothly"}
             </p>
           </div>
           <button

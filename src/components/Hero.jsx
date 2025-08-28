@@ -1,9 +1,10 @@
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { useFrame } from "@react-three/fiber";
 import { OrbitControls, Sphere, MeshDistortMaterial, Float, Stars } from "@react-three/drei";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import SafeCanvas from "./SafeCanvas";
+import HeroFallback from "./HeroFallback";
 
 const AnimatedSphere = () => {
   const meshRef = useRef();
@@ -32,32 +33,62 @@ const AnimatedSphere = () => {
 };
 
 const Hero = () => {
+    const [useWebGL, setUseWebGL] = useState(true);
     const titleRef = useRef(null);
     const subtitleRef = useRef(null);
     const buttonsRef = useRef(null);
 
     useEffect(() => {
+        // Check for Intel UHD Graphics 620 and disable WebGL
+        const canvas = document.createElement('canvas');
+        const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        
+        if (gl) {
+            const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+            if (debugInfo) {
+                const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+                // Force fallback for Intel UHD Graphics 620
+                if (renderer.includes('Intel') && renderer.includes('UHD Graphics 620')) {
+                    console.log('Intel UHD Graphics 620 detected - using CSS fallback');
+                    setUseWebGL(false);
+                }
+            }
+        } else {
+            setUseWebGL(false);
+        }
+
         const tl = gsap.timeline({ delay: 0.5 });
         
-        tl.from(titleRef.current, {
-            y: 100,
-            opacity: 0,
-            duration: 1.2,
-            ease: "power3.out"
-        })
-        .from(subtitleRef.current, {
-            y: 50,
-            opacity: 0,
-            duration: 1,
-            ease: "power3.out"
-        }, "-=0.8")
-        .from(buttonsRef.current, {
-            y: 30,
-            opacity: 0,
-            duration: 0.8,
-            ease: "power3.out"
-        }, "-=0.6");
+        if (titleRef.current) {
+            tl.from(titleRef.current, {
+                y: 100,
+                opacity: 0,
+                duration: 1.2,
+                ease: "power3.out"
+            });
+        }
+        if (subtitleRef.current) {
+            tl.from(subtitleRef.current, {
+                y: 50,
+                opacity: 0,
+                duration: 1,
+                ease: "power3.out"
+            }, "-=0.8");
+        }
+        if (buttonsRef.current) {
+            tl.from(buttonsRef.current, {
+                y: 30,
+                opacity: 0,
+                duration: 0.8,
+                ease: "power3.out"
+            }, "-=0.6");
+        }
     }, []);
+
+    // Use fallback for Intel UHD Graphics 620 or if WebGL fails
+    if (!useWebGL) {
+        return <HeroFallback />;
+    }
 
     return (
         <section id="hero" className="relative min-h-screen flex flex-col lg:flex-row items-center justify-between px-6 lg:px-16 pt-20 lg:pt-0 overflow-hidden">
