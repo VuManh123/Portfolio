@@ -317,7 +317,7 @@ const Contact = () => {
                     className="text-center mt-16 pt-8 border-t border-primary-500/20"
                 >
                     <p className="text-dark-400 text-sm">
-                        © 2024 Mạnh Portfolio. Made with ❤️ using React, Three.js & Tailwind CSS
+                        © 2024 Mạnh Portfolio. Made with ❤️ using React, CSS3 & Tailwind CSS
                     </p>
                 </motion.div>
             </div>

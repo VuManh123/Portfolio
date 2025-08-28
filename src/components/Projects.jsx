@@ -8,9 +8,9 @@ gsap.registerPlugin(ScrollTrigger);
 const projects = [
     {
         id: 1,
-        title: "3D Portfolio Website",
-        description: "An immersive portfolio featuring 3D elements, smooth animations, and modern design patterns.",
-        technologies: ["React", "Three.js", "Framer Motion", "Tailwind CSS"],
+        title: "Interactive Portfolio Website",
+        description: "An immersive portfolio featuring CSS animations, smooth transitions, and modern design patterns.",
+        technologies: ["React", "CSS3", "Framer Motion", "Tailwind CSS"],
         image: "🌐",
         category: "Web Development",
         status: "Featured",
@@ -64,17 +64,17 @@ const projects = [
     {
         id: 6,
         title: "3D Game Interface",
-        description: "Interactive 3D game interface with WebGL rendering and physics simulations.",
-        technologies: ["Three.js", "Cannon.js", "WebGL", "GLSL"],
+        description: "Interactive game interface with CSS animations and smooth transitions.",
+        technologies: ["React", "CSS3", "JavaScript", "Canvas API"],
         image: "🎮",
-        category: "3D/WebGL",
+        category: "Frontend",
         status: "Featured",
         link: "#",
         github: "#"
     }
 ];
 
-const categories = ["All", "Web Development", "Full Stack", "Frontend", "Data Viz", "Mobile", "3D/WebGL"];
+const categories = ["All", "Web Development", "Full Stack", "Frontend", "Data Viz", "Mobile"];
 
 const ProjectCard = ({ project, index }) => {
     const cardRef = useRef(null);

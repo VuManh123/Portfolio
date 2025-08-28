@@ -1,33 +1,30 @@
 import React, { useRef, useEffect } from "react";
-import { useFrame } from "@react-three/fiber";
-import { OrbitControls, Sphere, MeshDistortMaterial, Float, Stars } from "@react-three/drei";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
-import SafeCanvas from "./SafeCanvas";
 
+// CSS-only animated sphere component
 const AnimatedSphere = () => {
-  const meshRef = useRef();
-  
-  useFrame((state) => {
-    if (meshRef.current) {
-      meshRef.current.rotation.x = state.clock.elapsedTime * 0.2;
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.3;
-    }
-  });
-
   return (
-    <Float speed={1.5} rotationIntensity={1} floatIntensity={2}>
-      <Sphere ref={meshRef} args={[1, 32, 32]} scale={1.2}>
-        <MeshDistortMaterial 
-          color="#3b82f6" 
-          attach="material" 
-          distort={0.3} 
-          speed={2}
-          roughness={0.3}
-          metalness={0.6}
-        />
-      </Sphere>
-    </Float>
+    <div className="relative w-64 h-64 mx-auto">
+      {/* Main sphere */}
+      <div className="absolute inset-0 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full animate-float shadow-2xl shadow-primary-500/30">
+        {/* Inner glow */}
+        <div className="absolute inset-2 bg-gradient-to-tr from-primary-400/50 to-transparent rounded-full animate-pulse-slow"></div>
+        {/* Highlight */}
+        <div className="absolute top-8 left-8 w-16 h-16 bg-white/20 rounded-full blur-sm"></div>
+      </div>
+      
+      {/* Orbiting particles */}
+      <div className="absolute inset-0 animate-spin-slow">
+        <div className="absolute -top-2 left-1/2 w-3 h-3 bg-accent-cyan rounded-full animate-pulse"></div>
+        <div className="absolute top-1/2 -right-2 w-2 h-2 bg-accent-purple rounded-full animate-bounce-slow"></div>
+        <div className="absolute -bottom-2 left-1/2 w-4 h-4 bg-primary-300 rounded-full animate-ping"></div>
+        <div className="absolute top-1/2 -left-2 w-2 h-2 bg-white rounded-full animate-pulse"></div>
+      </div>
+      
+      {/* Outer ring */}
+      <div className="absolute inset-0 border-2 border-primary-400/30 rounded-full animate-spin-reverse scale-125"></div>
+    </div>
   );
 };
 
@@ -66,6 +63,22 @@ const Hero = () => {
             <div className="absolute top-20 left-10 w-72 h-72 bg-primary-500/10 rounded-full blur-3xl animate-pulse-slow"></div>
             <div className="absolute bottom-20 right-10 w-96 h-96 bg-accent-purple/10 rounded-full blur-3xl animate-pulse-slow"></div>
 
+            {/* Animated background stars */}
+            <div className="absolute inset-0 overflow-hidden">
+                {Array.from({ length: 50 }).map((_, i) => (
+                    <div
+                        key={i}
+                        className="absolute w-1 h-1 bg-white rounded-full animate-twinkle"
+                        style={{
+                            left: `${Math.random() * 100}%`,
+                            top: `${Math.random() * 100}%`,
+                            animationDelay: `${Math.random() * 3}s`,
+                            animationDuration: `${2 + Math.random() * 2}s`
+                        }}
+                    />
+                ))}
+            </div>
+
             {/* Content */}
             <motion.div
                 initial={{ opacity: 0 }}
@@ -101,8 +114,8 @@ const Hero = () => {
                 <p ref={subtitleRef} className="text-lg md:text-xl text-dark-300 leading-relaxed max-w-xl">
                     I craft beautiful, interactive web experiences using{" "}
                     <span className="text-primary-400 font-semibold">React</span>,{" "}
-                    <span className="text-accent-cyan font-semibold">Three.js</span>, and{" "}
-                    <span className="text-accent-purple font-semibold">modern animations</span>
+                    <span className="text-accent-cyan font-semibold">CSS animations</span>, and{" "}
+                    <span className="text-accent-purple font-semibold">modern design</span>
                 </p>
 
                 {/* Tech Stack Pills */}
@@ -112,7 +125,7 @@ const Hero = () => {
                     transition={{ delay: 1, duration: 0.6 }}
                     className="flex flex-wrap gap-3 justify-center lg:justify-start"
                 >
-                    {["React", "Three.js", "Tailwind", "Framer Motion", "GSAP"].map((tech, index) => (
+                    {["React", "CSS3", "Tailwind", "Framer Motion", "GSAP"].map((tech, index) => (
                         <motion.span
                             key={tech}
                             initial={{ opacity: 0, scale: 0.8 }}
@@ -145,40 +158,14 @@ const Hero = () => {
                 </div>
             </motion.div>
 
-            {/* 3D Canvas */}
+            {/* CSS Animated Sphere */}
             <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.8, duration: 1 }}
-                className="relative flex-1 h-[400px] lg:h-[600px] w-full max-w-2xl"
+                className="relative flex-1 h-[400px] lg:h-[600px] w-full max-w-2xl flex items-center justify-center"
             >
-                <SafeCanvas 
-                    camera={{ position: [0, 0, 5], fov: 45 }}
-                    fallback={
-                        <div className="flex items-center justify-center h-full bg-dark-800/50 rounded-lg">
-                            <div className="text-center p-8">
-                                <div className="text-6xl mb-4 animate-pulse">🌟</div>
-                                <p className="text-primary-400 text-lg font-medium">
-                                    Creative Developer
-                                </p>
-                            </div>
-                        </div>
-                    }
-                >
-                    <Stars radius={50} depth={50} count={200} factor={4} saturation={0.5} fade />
-                    <ambientLight intensity={0.3} />
-                    <directionalLight position={[5, 5, 5]} intensity={1} />
-                    <pointLight position={[-5, -5, -5]} intensity={0.5} color="#00d4ff" />
-                    <AnimatedSphere />
-                    <OrbitControls 
-                        enableZoom={false} 
-                        enablePan={false}
-                        autoRotate
-                        autoRotateSpeed={0.5}
-                        enableDamping
-                        dampingFactor={0.05}
-                    />
-                </SafeCanvas>
+                <AnimatedSphere />
 
                 {/* Decorative Elements */}
                 <div className="absolute top-10 right-10 w-4 h-4 bg-accent-cyan rounded-full animate-bounce-slow"></div>

@@ -1,70 +1,40 @@
-import React, { useRef, useEffect } from "react";
-import { useFrame } from "@react-three/fiber";
-import { Sphere, Box, Float, Html, useProgress } from "@react-three/drei";
+import React, { useRef, useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { gsap } from "gsap";
-import SafeCanvas from "./SafeCanvas";
 
-// 3D Loading Animation Component
+// CSS-only Loading Animation Components
 const LoadingGeometry = () => {
-    const groupRef = useRef();
-    const sphereRef = useRef();
-    const boxRef = useRef();
-
-    useFrame((state) => {
-        if (groupRef.current) {
-            groupRef.current.rotation.y = state.clock.elapsedTime * 0.5;
-            groupRef.current.rotation.x = Math.sin(state.clock.elapsedTime * 0.3) * 0.2;
-        }
-        
-        if (sphereRef.current) {
-            sphereRef.current.rotation.x = state.clock.elapsedTime * 0.8;
-            sphereRef.current.rotation.z = state.clock.elapsedTime * 0.6;
-        }
-
-        if (boxRef.current) {
-            boxRef.current.rotation.y = -state.clock.elapsedTime * 0.4;
-            boxRef.current.rotation.z = state.clock.elapsedTime * 0.3;
-        }
-    });
-
     return (
-        <group ref={groupRef}>
-            <Float speed={2} rotationIntensity={1} floatIntensity={2}>
-                <Sphere ref={sphereRef} args={[1, 32, 32]} position={[0, 0, 0]}>
-                    <meshStandardMaterial 
-                        color="#3b82f6" 
-                        transparent 
-                        opacity={0.8}
-                        roughness={0.2}
-                        metalness={0.8}
-                    />
-                </Sphere>
-            </Float>
+        <div className="relative w-64 h-64 mx-auto">
+            {/* Main sphere */}
+            <div className="absolute inset-8 bg-gradient-to-br from-primary-500 to-primary-600 rounded-full animate-float shadow-2xl shadow-primary-500/30">
+                <div className="absolute inset-2 bg-gradient-to-tr from-primary-400/50 to-transparent rounded-full animate-pulse-slow"></div>
+                <div className="absolute top-6 left-6 w-12 h-12 bg-white/20 rounded-full blur-sm"></div>
+            </div>
             
-            <Float speed={1.5} rotationIntensity={1} floatIntensity={1}>
-                <Box ref={boxRef} args={[1.2, 1.2, 1.2]} position={[2.5, 0, 0]}>
-                    <meshStandardMaterial 
-                        color="#00d4ff" 
-                        transparent 
-                        opacity={0.5}
-                        wireframe
-                    />
-                </Box>
-            </Float>
+            {/* Wireframe cube */}
+            <div className="absolute top-0 right-0 w-24 h-24 animate-spin-slow">
+                <div className="relative w-full h-full">
+                    {/* Cube edges */}
+                    <div className="absolute inset-0 border-2 border-accent-cyan/60 rotate-45 transform-gpu animate-pulse"></div>
+                    <div className="absolute inset-2 border-2 border-accent-cyan/40 rotate-45 transform-gpu animate-pulse" style={{ animationDelay: '0.5s' }}></div>
+                    <div className="absolute inset-4 border-2 border-accent-cyan/20 rotate-45 transform-gpu animate-pulse" style={{ animationDelay: '1s' }}></div>
+                </div>
+            </div>
             
-            <Float speed={1.8} rotationIntensity={0.3} floatIntensity={2}>
-                <Sphere args={[0.6, 12, 12]} position={[-2, 0.5, 0]}>
-                    <meshStandardMaterial 
-                        color="#a855f7" 
-                        transparent 
-                        opacity={0.6}
-                        emissive="#a855f7"
-                        emissiveIntensity={0.1}
-                    />
-                </Sphere>
-            </Float>
-        </group>
+            {/* Small purple sphere */}
+            <div className="absolute bottom-4 left-4 w-16 h-16 bg-gradient-to-br from-accent-purple to-purple-600 rounded-full animate-bounce-slow shadow-lg shadow-purple-500/30">
+                <div className="absolute inset-1 bg-gradient-to-tr from-purple-300/30 to-transparent rounded-full"></div>
+            </div>
+            
+            {/* Orbiting particles */}
+            <div className="absolute inset-0 animate-spin-reverse">
+                <div className="absolute top-0 left-1/2 w-2 h-2 bg-white rounded-full animate-twinkle"></div>
+                <div className="absolute top-1/2 right-0 w-3 h-3 bg-accent-cyan rounded-full animate-pulse"></div>
+                <div className="absolute bottom-0 left-1/2 w-2 h-2 bg-accent-purple rounded-full animate-twinkle"></div>
+                <div className="absolute top-1/2 left-0 w-3 h-3 bg-primary-400 rounded-full animate-pulse"></div>
+            </div>
+        </div>
     );
 };
 
@@ -176,8 +146,27 @@ const LoadingDots = () => {
 
 // Main Loading Component
 const Loading = ({ isLoading, onLoadingComplete }) => {
-    const { progress } = useProgress();
+    const [progress, setProgress] = useState(0);
     const containerRef = useRef(null);
+
+    // Simulate loading progress
+    useEffect(() => {
+        if (isLoading) {
+            const interval = setInterval(() => {
+                setProgress(prev => {
+                    if (prev >= 100) {
+                        clearInterval(interval);
+                        return 100;
+                    }
+                    // Simulate realistic loading with varying speeds
+                    const increment = Math.random() * 15 + 5;
+                    return Math.min(prev + increment, 100);
+                });
+            }, 200);
+
+            return () => clearInterval(interval);
+        }
+    }, [isLoading]);
 
     useEffect(() => {
         if (progress === 100) {
@@ -216,27 +205,26 @@ const Loading = ({ isLoading, onLoadingComplete }) => {
                     <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-accent-cyan/5 rounded-full blur-3xl"></div>
                 </div>
 
-                {/* 3D Canvas */}
+                {/* Animated background stars */}
+                <div className="absolute inset-0 overflow-hidden">
+                    {Array.from({ length: 30 }).map((_, i) => (
+                        <div
+                            key={i}
+                            className="absolute w-1 h-1 bg-white rounded-full animate-twinkle"
+                            style={{
+                                left: `${Math.random() * 100}%`,
+                                top: `${Math.random() * 100}%`,
+                                animationDelay: `${Math.random() * 3}s`,
+                                animationDuration: `${2 + Math.random() * 2}s`
+                            }}
+                        />
+                    ))}
+                </div>
+
+                {/* CSS-only 3D Animation */}
                 <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-full h-full max-w-2xl max-h-2xl">
-                        <SafeCanvas 
-                            camera={{ position: [0, 0, 8], fov: 45 }}
-                            fallback={
-                                <div className="flex items-center justify-center h-full">
-                                    <div className="text-center">
-                                        <div className="text-8xl mb-4 animate-spin">⚛️</div>
-                                        <p className="text-primary-400 text-xl font-medium">
-                                            Loading...
-                                        </p>
-                                    </div>
-                                </div>
-                            }
-                        >
-                            <ambientLight intensity={0.3} />
-                            <directionalLight position={[5, 5, 5]} intensity={1} />
-                            <pointLight position={[-5, -5, -5]} intensity={0.5} color="#00d4ff" />
-                            <LoadingGeometry />
-                        </SafeCanvas>
+                    <div className="w-full h-full max-w-2xl max-h-2xl flex items-center justify-center">
+                        <LoadingGeometry />
                     </div>
                 </div>
 
